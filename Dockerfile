@@ -1,12 +1,11 @@
 # ---- Build Stage ----
-FROM gradle:8.2.1-jdk17 AS build
+FROM gradle:8.1.3-jdk17 AS build
 
 # Copy source code
 COPY . /home/gradle/project
 WORKDIR /home/gradle/project
 
-ENV GRADLE_USER_HOME=/home/gradle/project/.gradle
-
+ENV GRADLE_USER_HOME=/home/gradle/.gradle
 RUN gradle clean build --no-daemon --no-build-cache
 
 # ---- Run Stage ----
