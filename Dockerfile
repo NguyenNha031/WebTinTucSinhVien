@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM gradle:8.1.3-jdk17 AS build
+FROM gradle:8.13-jdk17 AS build
 
 # Copy source code
 COPY . /home/gradle/project
