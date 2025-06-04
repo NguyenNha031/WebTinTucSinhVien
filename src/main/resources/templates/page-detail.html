@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/head :: head('Trang chi tiết')"></head>
+<body>
+<div th:replace="fragment/header :: header"></div>
+
+<div class="container my-5">
+    <h1 th:text="${page.title}">Tiêu đề</h1>
+    <hr>
+    <div th:each="block : ${contentHtml}">
+        <div th:utext="${block.code}"></div>
+    </div>
+
+</div>
+</body>
+</html>

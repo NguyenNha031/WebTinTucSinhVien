@@ -1,0 +1,23 @@
+package com.nhom10.doanmonhoc.service.impl;
+
+import com.nhom10.doanmonhoc.model.User;
+import com.nhom10.doanmonhoc.repository.UserRepository;
+import com.nhom10.doanmonhoc.service.UserService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserServiceImpl extends UserService {
+
+    private final UserRepository repo;
+
+    public UserServiceImpl(UserRepository repo) {
+        this.repo = repo;
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return repo.findAll();
+    }
+}

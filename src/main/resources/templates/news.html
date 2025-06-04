@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/head :: head('Tin tức')" th:with="pageCss='/css/news.css'"></head>
+
+<body>
+
+<div th:replace="fragment/header :: header"></div>
+
+<!-- Breadcrumb hoặc Intro -->
+<div class="container my-4">
+</div>
+
+<!-- Danh sách bài viết -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="post : ${posts}">
+            <a th:href="${post.link}" th:title="${post.tooltip}" target="_blank"
+               class="card h-100 border-0 text-decoration-none text-dark">
+                <img th:src="${post.image}" class="card-img-top news-img" alt="Tin nổi bật"
+                     style="height: 220px; object-fit: cover;">
+                <div class="card-body">
+                    <h6 class="card-title fw-semibold" th:text="${post.title}"></h6>
+                    <p class="text-muted small" th:text="${post.timeAgo}"></p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

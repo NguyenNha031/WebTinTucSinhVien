@@ -1,0 +1,73 @@
+<div th:fragment="header">
+    <div class="top-header py-2 ">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 d-flex align-items-center">
+                    <img  src="https://khoacntt.ntu.edu.vn/Portals/54/Logo-Khoa-CNTT-NTU.png?ver=w1WaDt4_a6t2zoyh_JwxVA%3d%3d" alt="NTU Logo" style="height: 60px; margin-right: 10px;">
+                </div>
+                <div class="col-md-9 text-end">
+                    <div th:if="${session.loggedInUser != null}" class="d-flex align-items-center justify-content-end gap-2">
+                        <img src="https://cdn1.iconfinder.com/data/icons/man-user-human-profile-avatar-business-person/100/09-1User_3-4-1024.png" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px;">
+                        <span class="text-black fw-bold" th:text="${session.loggedInUser.fullname}">Tên người dùng</span>
+                        <form action="/logout" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-pr  btn-sm" title="Đăng xuất">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </form>
+                    </div>
+
+
+
+                    <div th:unless="${session.loggedInUser != null}">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            Đăng nhập
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <header class="main-header bg-dark" style="padding: 15px 0">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <!-- Trang chủ -->
+                        <li class="nav-item" th:classappend="${currentPage == 'home'} ? 'active'">
+                            <a href="/" class="nav-link fw-bold text-white">Trang chủ</a>
+                        </li>
+
+                        <!-- Tin tức -->
+                        <li class="nav-item" th:classappend="${currentPage == 'news'} ? 'active'">
+                            <a th:href="@{/tin-tuc}" class="nav-link fw-bold text-white">Tin tức</a>
+
+                        </li>
+
+                        <li th:each="menu : ${menus}"
+                            th:with="pageId=${menuToPageMap[menu.id]}"
+                            th:classappend="${pageId != null and pageId == currentPageId} ? 'active'"
+                            class="nav-item">
+
+                            <a th:if="${pageId != null}"
+                               th:href="@{'/page/' + ${pageId}}"
+                               class="nav-link fw-bold text-white"
+                               th:text="${menu.name}">Liên kết</a>
+
+                            <!-- Fallback nếu không có page -->
+                            <a th:unless="${pageId != null}"
+                               href="#"
+                               class="nav-link fw-bold text-white"
+                               th:text="${menu.name}">Liên kết</a>
+                        </li>
+
+                    </ul>
+
+                </div>
+            </nav>
+        </div>
+    </header>
+</div>
+
+
