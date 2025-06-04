@@ -7,7 +7,6 @@ WORKDIR /home/gradle/project
 
 ENV GRADLE_USER_HOME=/home/gradle/project/.gradle
 
-# Do NOT switch to USER gradle
 RUN gradle clean build --no-daemon --no-build-cache
 
 # ---- Run Stage ----
