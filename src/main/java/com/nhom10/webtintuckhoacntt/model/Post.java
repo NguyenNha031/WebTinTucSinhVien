@@ -38,4 +38,7 @@ public class Post {
 
     private String image;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
 }

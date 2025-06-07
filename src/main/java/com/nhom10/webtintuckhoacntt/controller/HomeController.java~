@@ -186,13 +186,22 @@ public class HomeController {
         injectCommonModelAttributes(model);
         Optional<Page> pageOpt = pageRepository.findById(id);
         if (pageOpt.isEmpty()) return "redirect:/";
+
         Page page = pageOpt.get();
         model.addAttribute("page", page);
         model.addAttribute("currentPageId", page.getIdPage());
-        model.addAttribute("contentHtml", page.getContent());
+
+        List<Map<String, String>> blocks = new ArrayList<>();
+        for (Block block : blockRepository.findByIdPage(page.getIdPage())) {
+            Map<String, String> blockMap = new HashMap<>();
+            blockMap.put("code", block.getCode());
+            blocks.add(blockMap);
+        }
+
+        model.addAttribute("contentHtml", blocks);
+
         return "page-detail";
     }
-
 
     @PostMapping("/deletepost")
     public String deletePost(Long idPost, HttpSession session) {

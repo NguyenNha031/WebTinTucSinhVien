@@ -9,9 +9,15 @@
                     <div th:if="${session.loggedInUser != null}" class="d-flex align-items-center justify-content-end gap-2">
                         <img src="https://cdn1.iconfinder.com/data/icons/man-user-human-profile-avatar-business-person/100/09-1User_3-4-1024.png" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px;">
                         <span class="text-black fw-bold" th:text="${session.loggedInUser.fullname}">Tên người dùng</span>
-                        <form action="/logout" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-pr  btn-sm" title="Đăng xuất">
-                                <i class="fas fa-sign-out-alt"></i>
+                        <form action="/logout" method="post" style="display: inline;" onsubmit="localStorage.removeItem('loggedInUser')">
+
+                        <button type="submit" class="btn btn-pr  btn-sm" title="Đăng xuất">
+                            <a href="/" class="btn btn-outline-danger" onclick="return confirmLogout()">
+                                <i class="fas fa-sign-out-alt">
+
+                                </i></a>
+
+
                             </button>
                         </form>
                     </div>
@@ -70,4 +76,9 @@
     </header>
 </div>
 
+<script>
+    function confirmLogout() {
+        return confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    }
+</script>
 

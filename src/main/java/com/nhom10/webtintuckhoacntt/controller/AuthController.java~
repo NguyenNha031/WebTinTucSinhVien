@@ -19,6 +19,7 @@ public class AuthController {
     public String login(String email, String password,
                         HttpSession session,
                         RedirectAttributes redirectAttributes) {
+        // Tìm người dùng theo email và password
         Userr user = userrRepository.findByEmailAndPassword(email, password);
         if (user != null) {
             session.setAttribute("loggedInUser", user);

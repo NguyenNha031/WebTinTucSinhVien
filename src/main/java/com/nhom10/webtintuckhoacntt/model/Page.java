@@ -19,5 +19,7 @@ public class Page {
 
     @Column(name = "id_menu")
     private Long idMenu;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
 }

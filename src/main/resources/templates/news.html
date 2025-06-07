@@ -6,26 +6,239 @@
 
 <div th:replace="fragment/header :: header"></div>
 
-<!-- Breadcrumb hoặc Intro -->
 <div class="container my-4">
+    <button th:if="${session.loggedInUser != null}"
+            class="btn btn-primary"
+            onclick="openDrawer()">
+        + Thêm tin tức
+    </button>
 </div>
 
-<!-- Danh sách bài viết -->
 <div class="container">
     <div class="row">
         <div class="col-md-4 mb-4" th:each="post : ${posts}">
-            <a th:href="${post.link}" th:title="${post.tooltip}" target="_blank"
+            <a th:href="${post['link']}" th:title="${post['tooltip']}" target="_blank"
                class="card h-100 border-0 text-decoration-none text-dark">
-                <img th:src="${post.image}" class="card-img-top news-img" alt="Tin nổi bật"
+                <img th:src="${post['image']}" class="card-img-top news-img" alt="Tin nổi bật"
                      style="height: 220px; object-fit: cover;">
                 <div class="card-body">
-                    <h6 class="card-title fw-semibold" th:text="${post.title}"></h6>
-                    <p class="text-muted small" th:text="${post.timeAgo}"></p>
+                    <h6 class="card-title fw-semibold" th:text="${post['title']}"></h6>
+                    <div class="d-flex justify-content-between align-items-center mt-1 small text-muted">
+                        <span th:text="${post['timeAgo']}">Vừa đăng</span>
+                        <span th:if="${session.loggedInUser != null}" class="d-flex align-items-center gap-2">
+                            <i class="fas fa-thumbtack text-warning" th:if="${post['pined']}" title="Bài viết được ghim"></i>
+                            <span th:if="${post['status'] == 'Published'}" class="badge bg-success">Công khai</span>
+                            <span th:if="${post['status'] == 'Draft'}" class="badge bg-warning text-dark">Nháp</span>
+                            <span th:if="${post['status'] == 'Private'}" class="badge bg-danger">Riêng tư</span>
+                            <span th:if="${post['status'] == 'Pending_Review'}" class="badge bg-info text-dark">Chờ duyệt</span>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    th:onclick="'openEditDrawer(event, ' + ${post['id']} + ');'"
+                                    title="Chỉnh sửa bài viết">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </span>
+                    </div>
                 </div>
             </a>
         </div>
     </div>
 </div>
+
+<!-- Overlay -->
+<div id="overlay" onclick="closeDrawer()" style="display: none; position: fixed; top: 0; left: 0;
+     width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.4); z-index: 1049;"></div>
+
+<!-- Drawer -->
+<div id="drawer" class="position-fixed top-0 end-0 bg-white shadow p-4"
+     style="width: 600px; height: 100vh; display: none; z-index: 1050; overflow-y: auto;">
+    <h4 id="drawer-title">Thêm bài viết mới</h4>
+
+    <form th:action="@{/addpost}" method="post">
+        <input type="hidden" name="idPost" id="edit-id">
+
+        <div class="mb-3"><label for="edit-title">Tiêu đề</label>
+            <input type="text" class="form-control" name="title" id="edit-title" required>
+        </div>
+
+        <div class="mb-3"><label for="edit-mota">Mô tả</label>
+            <textarea class="form-control" name="mota" id="edit-mota"></textarea>
+        </div>
+
+        <div class="mb-3"><label for="edit-image">Ảnh đại diện</label>
+            <input type="text" class="form-control" name="image" id="edit-image">
+        </div>
+
+        <div class="mb-3"><label for="editor">Nội dung</label>
+            <textarea class="form-control" name="content" id="editor" rows="6"></textarea>
+        </div>
+
+        <div class="mb-3"><label for="edit-status">Trạng thái</label>
+            <select name="status" id="edit-status" class="form-control">
+                <option value="Published">Công khai</option>
+                <option value="Draft">Nháp</option>
+                <option value="Private">Riêng tư</option>
+                <option value="Pending_Review">Đợi duyệt</option>
+            </select>
+        </div>
+
+        <div class="mb-3"><label for="edit-createdAt">Ngày khởi tạo</label>
+            <input type="datetime-local" class="form-control" name="createdAt" id="edit-createdAt">
+        </div>
+
+        <div class="mb-3"><label for="edit-updatedAt">Ngày cập nhật</label>
+            <input type="datetime-local" class="form-control" name="updatedAt" id="edit-updatedAt">
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="pined" id="edit-pined">
+            <label class="form-check-label" for="edit-pined">Ghim bài viết</label>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Lưu</button>
+            <button type="button" class="btn btn-danger" id="delete-btn" style="display:none;" onclick="confirmDelete()">Xóa</button>
+        </div>
+    </form>
+</div>
+
+<!-- Form ẩn dùng để xóa -->
+<form id="delete-form" th:action="@{/deletepost}" method="post" style="display: none;">
+    <input type="hidden" name="idPost" id="delete-id">
+</form>
+
+<!-- JS -->
+<script>
+    function openDrawer() {
+        document.getElementById('drawer-title').innerText = 'Thêm bài viết mới';
+        document.getElementById('delete-btn').style.display = 'none';
+        document.getElementById('drawer').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+
+        // Reset form
+        document.getElementById('edit-id').value = '';
+        document.getElementById('delete-id').value = '';
+        document.getElementById('edit-title').value = '';
+        document.getElementById('edit-mota').value = '';
+        document.getElementById('edit-image').value = '';
+        document.getElementById('edit-status').value = 'Published';
+        document.getElementById('edit-createdAt').value = '';
+        document.getElementById('edit-updatedAt').value = '';
+        document.getElementById('edit-pined').checked = false;
+
+        if (window.editorInstance) {
+            window.editorInstance.setData('');
+        }
+    }
+
+    function closeDrawer() {
+        document.getElementById('drawer').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function confirmDelete() {
+        if (confirm("Bạn có chắc chắn muốn xóa bài viết này không?")) {
+            document.getElementById('delete-form').submit();
+        }
+    }
+
+    function openEditDrawer(event, id) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const post = window.allPosts.find(p => p.id == id);
+        if (!post) return;
+
+        document.getElementById('drawer-title').innerText = 'Chỉnh sửa bài viết';
+        document.getElementById('delete-btn').style.display = 'inline-block';
+        document.getElementById('edit-id').value = post.id;
+        document.getElementById('delete-id').value = post.id;
+        document.getElementById('edit-title').value = post.title;
+        document.getElementById('edit-mota').value = post.tooltip;
+        document.getElementById('edit-image').value = post.image;
+        document.getElementById('edit-status').value = post.status;
+        document.getElementById('edit-createdAt').value = post.createdAt?.slice(0, 16) || '';
+        document.getElementById('edit-updatedAt').value = new Date().toISOString().slice(0, 16);
+        document.getElementById('edit-pined').checked = post.pined;
+
+        if (window.editorInstance) {
+            window.editorInstance.setData(post.content || '');
+        }
+
+        document.getElementById('drawer').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script th:inline="javascript">
+    let editorInstance;
+    ClassicEditor.create(document.querySelector('#editor'))
+        .then(editor => {
+            editorInstance = editor;
+            window.editorInstance = editor;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+    /*<![CDATA[*/
+    window.allPosts = /*[[${posts}]]*/ [];
+    /*]]>*/
+</script>
+
+
+<!-- Modal đăng nhập -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-start">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Đăng nhập</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/login" method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mật khẩu:</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:if="${session.loggedInUser != null}" th:inline="javascript">
+    let user = /*[[${session.loggedInUser}]]*/ {};
+    localStorage.setItem("loggedInUser", JSON.stringify(user));
+</script>
+
+<script th:if="${loginError}" th:inline="javascript">
+    alert("[[${loginError}]]");
+</script>
+
+<script th:if="${loginSuccess}" type="text/javascript">
+    alert("Đăng nhập thành công!");
+</script>
+<script>
+    const saved = localStorage.getItem('loggedInUser');
+    if (saved) {
+        const u = JSON.parse(saved);
+        console.log("Người dùng đã lưu:", u.fullname);
+    }
+</script>
+<script>
+    function confirmLogout() {
+        return confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    }
+</script>
 
 </body>
 </html>
